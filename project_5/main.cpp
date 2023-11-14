@@ -32,7 +32,7 @@ int render(int lineLength, istream& inf, ostream& outf) {
         doubleEnd = false;
         int val = getWord(lineLength, pos, inf, word, doubleEnd, len);
         
-        cerr << "Word: " << word << "| pos: " << pos << "| val : " << val << addDouble << endl;
+        cerr << "Word: " << word << "| next pos: " << pos << "| val : " << val << addDouble << endl;
         if (val == 1) {
             cerr << "out of words" << endl;
             writeFile(outf, word, val, startLine, addDouble, pos, len);
@@ -50,23 +50,18 @@ int render(int lineLength, istream& inf, ostream& outf) {
 int writeFile(ostream& outf, char word[], int val, bool& startLine, bool addDouble, int& pos, int len) {
     // need to know ending of previous word to add whitespace before
     if (word[0] == '@' && word[1] == 'P' && word[2] == '@' && word[3] == '\0') {
-//        cerr << "paragraph written" << endl;
-        outf << '\n';
+        outf << '\n' << '\n';
         pos = 0;
         startLine = true;
     }
     else if (val == 2 || val == 3) {
         // if word overflows line
-//        cerr << endl << "Overflow Word: ";
-//        if (pos >= lineLength) {
-//            outf << '\n';
-//        }
-        outf << '\n';
+        if (!startLine) {
+            outf << '\n';
+        }
         for (int i = 0; word[i] != '\0'; i ++) {
             outf << word[i];
         }
-         // necessary endline
-//        cerr << endl; // just to visualize tokens
         startLine = false;
         pos = len; // need to change position to new word length
         if (val == 2) {
@@ -82,28 +77,23 @@ int writeFile(ostream& outf, char word[], int val, bool& startLine, bool addDoub
         }
         
         if (startLine) {
-//            cerr << "First Word: ";
             startLine = false;
         }
         else {
-//            cerr << "Word: ";
             // add whitespace after previous word
             if (addDouble) {
-                outf << "**";
+                outf << ' ' << ' ';
                 pos += 2;
             }
             else {
-                outf << "*";
+                outf << ' ';
                 pos ++;
             }
-//            cerr << "pos: " << pos;
         }
         // print word to line
         for (int i = 0; word[i] != '\0'; i ++) {
             outf << word[i];
         }
-//        cerr << endl;
-        
     }
     return 0;
 }
@@ -125,8 +115,6 @@ int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd
         if (i > lineLength - pos - offset){
             // word won't fit on rest of line, but not at max yet
             // keep on reading until max line lenght
-//            if (!lineOverflow)
-//                cerr << endl << endl << "overflowed line" << endl;
             lineOverflow = true;
         }
         if (i == lineLength - 1) {
@@ -135,14 +123,6 @@ int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd
             word[i + 1] = '\0';
             doubleEnd = false;
             return 2;
-//            if (lineOverflow) {
-//                // max line length and
-//                return 3;
-//            }
-//            else {
-//                // max line length
-//                return 2;
-//            }
         }
         
         if (!isspace(c)) {
@@ -184,63 +164,23 @@ int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd
 
 int main () {
     ofstream outfile("/Users/leisongao/Desktop/cs31/Projects/project_5/textFiles/results.text");
-//    ofstream outfile("results.text");
-    // outfile is a name of our choosing.
+//    ofstream outfile("results.text");     // g31 code
     if ( ! outfile )// Did the creation fail?
     {
     cerr << "Error: Cannot create results.txt!" << endl;
     }
-//    outfile << "This will be written to the file" << endl;
-//    outfile << "words, words, words, @P@ more words" << endl;
-//    outfile << "2 + 2 = " << 2+2 << endl;
 
     // input code
     ifstream infile("/Users/leisongao/Desktop/cs31/Projects/project_5/textFiles/ref.text");
-//    ifstream infile("ref.text");    // infile is a name of our choosing
+//    ifstream infile("ref.text");    // g31 code
     if ( ! infile )                // Did opening the file fail?
     {
     cerr << "Error: Cannot open data.txt!" << endl;
     }
     
     int len = 40;
-//    cout << "Input line length: ";
-//    cin >> len;
     render(len, infile, outfile);
 }
-//int main() {
-//    // output code
-//    ofstream outfile("/Users/leisongao/desktop/cs31/Projects/project_5/textFiles/results.text");
-//    // outfile is a name of our choosing.
-//    if ( ! outfile )// Did the creation fail?
-//    {
-//        cerr << "Error: Cannot create results.txt!" << endl;
-//    }
-//    outfile << "This will be written to the file" << endl;
-//    outfile << "2 + 2 = " << 2+2 << endl;
-//    return 0;
-//    
-//    // input code
-//    ifstream infile("data.txt");    // infile is a name of our choosing
-//    if ( ! infile )                // Did opening the file fail?
-//    {
-//        cerr << "Error: Cannot open data.txt!" << endl;
-//    }
-//    
-//    // reading char
-//    char c;
-//    infile.get(c);
-//    
-//    // reading line by line
-//    const int MAX = ....;
-//    char line[MAX];
-//    infile.getline(line, MAX);
-//    
-//    // reading entire file
-//    while ( infile.getline(line, MAX) )
-//    {
-//        ... process line
-//    }
-//}
 
 //int main()
 //{
