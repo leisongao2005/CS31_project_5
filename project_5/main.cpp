@@ -11,9 +11,9 @@
 
 using namespace std;
 
-int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd);
+int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd, int& length);
 int render(int lineLength, istream& inf, ostream& outf);
-int writeFile(int lineLength, ostream& outf, char word[], int val, bool& startLine, bool addDouble, int& pos);
+int writeFile(int lineLength, ostream& outf, char word[], int val, bool& startLine, bool addDouble, int& pos, int len);
 
 int render(int lineLength, istream& inf, ostream& outf) {
     if (lineLength < 1) {
@@ -25,46 +25,50 @@ int render(int lineLength, istream& inf, ostream& outf) {
     bool addDouble = false;
     bool startLine = true;
     int pos = 0;
+    int len;
     for (;;)
     {
-        int val = getWord(lineLength, pos, inf, word, doubleEnd);
-        cerr << "Word: " << word << "| ending at pos: " << pos << endl;
+        len = 0;
+        int val = getWord(lineLength, pos, inf, word, doubleEnd, len);
         if (val == 1) {
             return 1; // out of words
         }
         else {
-            writeFile(lineLength, outf, word, val, startLine, addDouble, pos);
+            writeFile(lineLength, outf, word, val, startLine, addDouble, pos, len);
         }
+        cerr << "Word: " << word << "| next pos: " << pos << "| val : " << val << addDouble << endl;
         addDouble = doubleEnd;
     }
     return 0;
 }
 
-int writeFile(int lineLength, ostream& outf, char word[], int val, bool& startLine, bool addDouble, int& pos) {
+int writeFile(int lineLength, ostream& outf, char word[], int val, bool& startLine, bool addDouble, int& pos, int len) {
     // need to know ending of previous word to add whitespace before
     if (word[0] == '@' && word[1] == 'P' && word[2] == '@' && word[3] == '\0') {
 //        cerr << "paragraph written" << endl;
         outf << '\n';
         pos = 0;
+        startLine = true;
     }
     else if (val == 2 || val == 3) {
         // if word overflows line
 //        cerr << endl << "Overflow Word: ";
-        if (pos > lineLength) {
-            outf << '\n';
-            startLine = false;
-            pos = 0;
-        }
+//        if (pos >= lineLength) {
+//            outf << '\n';
+//        }
+        outf << '\n';
         for (int i = 0; word[i] != '\0'; i ++) {
             outf << word[i];
         }
+         // necessary endline
+//        cerr << endl; // just to visualize tokens
+        startLine = false;
+        pos = len; // need to change position to new word length
         if (val == 2) {
             // maxline case, create newline
             outf << '\n'; // necessary endline
             startLine = true;
-            pos = 0;
-        } // necessary endline
-//        cerr << endl; // just to visualize tokens
+        }
     }
     else {
         // checking for hyphen case
@@ -99,14 +103,21 @@ int writeFile(int lineLength, ostream& outf, char word[], int val, bool& startLi
     return 0;
 }
 
-int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd) {
+int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd, int& length) {
     char c;
     int i = 0;
     char prevc = '\0';
     bool lineOverflow = false;
     int len = 0;
+    int offset = 0;
+    if (doubleEnd) {
+        offset = 2;
+    }
+    else {
+        offset = 1;
+    }
     while (inf.get(c)) {
-        if (i >= lineLength - pos - 1){
+        if (i >= lineLength - pos - offset - 1){
             // word won't fit on rest of line, but not at max yet
             // keep on reading until max line lenght
 //            if (!lineOverflow)
@@ -118,14 +129,15 @@ int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd
             word[i] = c;
             word[i + 1] = '\0';
             doubleEnd = false;
-            if (lineOverflow) {
-                // max line length and
-                return 3;
-            }
-            else {
-                // max line length
-                return 2;
-            }
+            return 2;
+//            if (lineOverflow) {
+//                // max line length and
+//                return 3;
+//            }
+//            else {
+//                // max line length
+//                return 2;
+//            }
         }
         
         if (!isspace(c)) {
@@ -136,6 +148,7 @@ int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd
                 word[i + 1] = '\0';
                 doubleEnd = false;
                 pos += len;
+                length = len;
                 if (lineOverflow) {
                     return 3;
                 }
@@ -152,6 +165,7 @@ int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd
                 doubleEnd = false;
             }
             pos += len;
+            length = len;
             if (lineOverflow) {
                 return 3;
             }
