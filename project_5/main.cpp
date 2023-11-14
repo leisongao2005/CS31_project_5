@@ -29,14 +29,19 @@ int render(int lineLength, istream& inf, ostream& outf) {
     for (;;)
     {
         len = 0;
+        doubleEnd = false;
         int val = getWord(lineLength, pos, inf, word, doubleEnd, len);
+        
+        cerr << "Word: " << word << "| pos: " << pos << "| val : " << val << addDouble << endl;
         if (val == 1) {
+            cerr << "out of words" << endl;
+            writeFile(outf, word, val, startLine, addDouble, pos, len);
             return 1; // out of words
         }
         else {
             writeFile(outf, word, val, startLine, addDouble, pos, len);
         }
-        cerr << "Word: " << word << "| next pos: " << pos << "| val : " << val << addDouble << endl;
+        
         addDouble = doubleEnd;
     }
     return 0;
@@ -117,7 +122,7 @@ int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd
         offset = 1;
     }
     while (inf.get(c)) {
-        if (i >= lineLength - pos - offset - 1){
+        if (i > lineLength - pos - offset){
             // word won't fit on rest of line, but not at max yet
             // keep on reading until max line lenght
 //            if (!lineOverflow)
@@ -173,11 +178,13 @@ int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd
         }
         i ++;
     }
+    word[i] = '\0';
     return 1; // reached end of file
 }
 
 int main () {
-    ofstream outfile("results.text");
+    ofstream outfile("/Users/leisongao/Desktop/cs31/Projects/project_5/textFiles/results.text");
+//    ofstream outfile("results.text");
     // outfile is a name of our choosing.
     if ( ! outfile )// Did the creation fail?
     {
@@ -188,7 +195,8 @@ int main () {
 //    outfile << "2 + 2 = " << 2+2 << endl;
 
     // input code
-    ifstream infile("ref.text");    // infile is a name of our choosing
+    ifstream infile("/Users/leisongao/Desktop/cs31/Projects/project_5/textFiles/ref.text");
+//    ifstream infile("ref.text");    // infile is a name of our choosing
     if ( ! infile )                // Did opening the file fail?
     {
     cerr << "Error: Cannot open data.txt!" << endl;
