@@ -13,7 +13,7 @@ using namespace std;
 
 int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd, int& length);
 int render(int lineLength, istream& inf, ostream& outf);
-int writeFile(int lineLength, ostream& outf, char word[], int val, bool& startLine, bool addDouble, int& pos, int len);
+int writeFile(ostream& outf, char word[], int val, bool& startLine, bool addDouble, int& pos, int len);
 
 int render(int lineLength, istream& inf, ostream& outf) {
     if (lineLength < 1) {
@@ -34,7 +34,7 @@ int render(int lineLength, istream& inf, ostream& outf) {
             return 1; // out of words
         }
         else {
-            writeFile(lineLength, outf, word, val, startLine, addDouble, pos, len);
+            writeFile(outf, word, val, startLine, addDouble, pos, len);
         }
         cerr << "Word: " << word << "| next pos: " << pos << "| val : " << val << addDouble << endl;
         addDouble = doubleEnd;
@@ -42,7 +42,7 @@ int render(int lineLength, istream& inf, ostream& outf) {
     return 0;
 }
 
-int writeFile(int lineLength, ostream& outf, char word[], int val, bool& startLine, bool addDouble, int& pos, int len) {
+int writeFile(ostream& outf, char word[], int val, bool& startLine, bool addDouble, int& pos, int len) {
     // need to know ending of previous word to add whitespace before
     if (word[0] == '@' && word[1] == 'P' && word[2] == '@' && word[3] == '\0') {
 //        cerr << "paragraph written" << endl;
@@ -177,7 +177,7 @@ int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd
 }
 
 int main () {
-    ofstream outfile("/Users/leisongao/desktop/cs31/Projects/project_5/textFiles/results.text");
+    ofstream outfile("results.text");
     // outfile is a name of our choosing.
     if ( ! outfile )// Did the creation fail?
     {
@@ -188,13 +188,13 @@ int main () {
 //    outfile << "2 + 2 = " << 2+2 << endl;
 
     // input code
-    ifstream infile("/Users/leisongao/desktop/cs31/Projects/project_5/textFiles/ref.text");    // infile is a name of our choosing
+    ifstream infile("ref.text");    // infile is a name of our choosing
     if ( ! infile )                // Did opening the file fail?
     {
     cerr << "Error: Cannot open data.txt!" << endl;
     }
     
-    int len = 30;
+    int len = 40;
 //    cout << "Input line length: ";
 //    cin >> len;
     render(len, infile, outfile);
