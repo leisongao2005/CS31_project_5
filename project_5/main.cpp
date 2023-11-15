@@ -13,7 +13,7 @@ using namespace std;
 
 int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd, int& length);
 int render(int lineLength, istream& inf, ostream& outf);
-int writeFile(ostream& outf, char word[], int val, bool& startLine, bool addDouble, int& pos, int len);
+int writeFile(ostream& outf, char word[], int val, bool& startLine, bool addDouble, int& pos, int len, bool& hyp);
 
 int render(int lineLength, istream& inf, ostream& outf) {
     if (lineLength < 1) {
@@ -26,6 +26,7 @@ int render(int lineLength, istream& inf, ostream& outf) {
     bool startLine = true;
     int pos = 0;
     int len;
+    bool hyp = false;
     for (;;)
     {
         len = 0;
@@ -35,11 +36,15 @@ int render(int lineLength, istream& inf, ostream& outf) {
         cerr << "Word: " << word << "| next pos: " << pos << "| val : " << val << addDouble << endl;
         if (val == 1) {
             cerr << "out of words" << endl;
-            writeFile(outf, word, val, startLine, addDouble, pos, len);
+            writeFile(outf, word, val, startLine, addDouble, pos, len, hyp);
             return 1; // out of words
         }
+        else if (val == 4) {
+            writeFile(outf, word, val, startLine, addDouble, pos, len, hyp);
+            hyp = true;
+        }
         else {
-            writeFile(outf, word, val, startLine, addDouble, pos, len);
+            writeFile(outf, word, val, startLine, addDouble, pos, len, hyp);
         }
         
         addDouble = doubleEnd;
@@ -47,8 +52,13 @@ int render(int lineLength, istream& inf, ostream& outf) {
     return 0;
 }
 
-int writeFile(ostream& outf, char word[], int val, bool& startLine, bool addDouble, int& pos, int len) {
+int writeFile(ostream& outf, char word[], int val, bool& startLine, bool addDouble, int& pos, int len, bool& hyp) {
     // need to know ending of previous word to add whitespace before
+    bool hypp = false;
+    if (hyp) {
+        hypp = true;
+        hyp = false;
+    }
     if (word[0] == '@' && word[1] == 'P' && word[2] == '@' && word[3] == '\0') {
         outf << '\n' << '\n';
         pos = 0;
@@ -85,9 +95,12 @@ int writeFile(ostream& outf, char word[], int val, bool& startLine, bool addDoub
                 outf << ' ' << ' ';
                 pos += 2;
             }
-            else {
+            else if (!hypp){
                 outf << ' ';
                 pos ++;
+            }
+            else {
+                hyp = false;
             }
         }
         // print word to line
@@ -137,7 +150,7 @@ int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd
                 if (lineOverflow) {
                     return 3;
                 }
-                return 0;
+                return 4;
             }
             prevc = c;
         }
