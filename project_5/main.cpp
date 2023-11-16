@@ -176,7 +176,7 @@ int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd
 }
 
 int main () {
-    ofstream outfile("/Users/leisongao/Desktop/cs31/Projects/project_5/textFiles/results.text");
+    ofstream outfile("/Users/leisongao/Desktop/cs31/project_5/textFiles/results.text");
 //    ofstream outfile("results.text");     // g31 code
     if ( ! outfile )// Did the creation fail?
     {
@@ -184,7 +184,7 @@ int main () {
     }
 
     // input code
-    ifstream infile("/Users/leisongao/Desktop/cs31/Projects/project_5/textFiles/ref.text");
+    ifstream infile("/Users/leisongao/Desktop/cs31/project_5/textFiles/ref.text");
 //    ifstream infile("ref.text");    // g31 code
     if ( ! infile )                // Did opening the file fail?
     {
@@ -194,28 +194,3 @@ int main () {
     int len = 40;
     render(len, infile, outfile);
 }
-
-//int main()
-//{
-//    const int MAX_FILENAME_LENGTH = 100;
-//    for (;;)
-//    {
-//        cout << "Enter input file name (or q to quit): ";
-//        char filename[MAX_FILENAME_LENGTH];
-//        cin.getline(filename, MAX_FILENAME_LENGTH);
-//        if (strcmp(filename, "q") == 0)
-//            break;
-//        ifstream infile(filename);
-//        if (!infile)
-//        {
-//            cerr << "Cannot open " << filename << "!" << endl;
-//            continue;
-//        }
-//        cout << "Enter maximum line length: ";
-//        int len;
-//        cin >> len;
-//        cin.ignore(10000, '\n');
-//        int returnCode = render(len, infile, cout);
-//        cout << "Return code is " << returnCode << endl;
-//    }
-//}
