@@ -8,12 +8,10 @@
 #include <iostream>
 #include <fstream>
 #include <cctype>
-// extra test code
-    #include <sstream>
-    #include <streambuf>
-    #include <cstring>
-    #include <cassert>
-
+#include <sstream>
+#include <streambuf>
+#include <cstring>
+#include <cassert>
 using namespace std;
 
 int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd, int& length);
@@ -39,9 +37,7 @@ int render(int lineLength, istream& inf, ostream& outf) {
         doubleEnd = false;
         int val = getWord(lineLength, pos, inf, word, doubleEnd, len);
         
-//        cerr << "Word: " << word << "| next pos: " << pos << "| val : " << val << addDouble << endl;
         if (val == 1) {
-//            cerr << "out of words" << endl;
             writeFile(outf, word, val, startLine, addDouble, pos, len, hyp);
             outf << '\n';
             if (overflow == true)
@@ -187,28 +183,6 @@ int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd
     word[i] = '\0';
     return 1; // reached end of file
 }
-//
-//int main () {
-//    ofstream outfile("/Users/leisongao/Desktop/cs31/project_5/textFiles/results.text");
-////    ofstream outfile("results.text");     // g31 code
-//    if ( ! outfile )// Did the creation fail?
-//    {
-//    cerr << "Error: Cannot create results.txt!" << endl;
-//    }
-//
-//    // input code
-//    ifstream infile("/Users/leisongao/Desktop/cs31/project_5/textFiles/ref.text");
-////    ifstream infile("ref.text");    // g31 code
-//    if ( ! infile )                // Did opening the file fail?
-//    {
-//    cerr << "Error: Cannot open data.txt!" << endl;
-//    }
-//    
-////    outfile << "Testing it\n";
-//    
-//    int len = 6;
-//    render(len, infile, outfile);
-//}
 
 void testRender(int lineLength, const char input[], const char expectedOutput[], int expectedReturnValue)
 {
