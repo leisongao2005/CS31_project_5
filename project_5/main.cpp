@@ -8,6 +8,11 @@
 #include <iostream>
 #include <fstream>
 #include <cctype>
+// extra test code
+    #include <sstream>
+    #include <streambuf>
+    #include <cstring>
+    #include <cassert>
 
 using namespace std;
 
@@ -27,17 +32,25 @@ int render(int lineLength, istream& inf, ostream& outf) {
     int pos = 0;
     int len;
     bool hyp = false;
+    bool overflow = false;
     for (;;)
     {
         len = 0;
         doubleEnd = false;
         int val = getWord(lineLength, pos, inf, word, doubleEnd, len);
         
-        cerr << "Word: " << word << "| next pos: " << pos << "| val : " << val << addDouble << endl;
+//        cerr << "Word: " << word << "| next pos: " << pos << "| val : " << val << addDouble << endl;
         if (val == 1) {
-            cerr << "out of words" << endl;
+//            cerr << "out of words" << endl;
             writeFile(outf, word, val, startLine, addDouble, pos, len, hyp);
-            return 1; // out of words
+            outf << '\n';
+            if (overflow == true)
+                return 1;
+            return 0; // out of words
+        }
+        else if (val == 2) {
+            overflow = true;
+            writeFile(outf, word, val, startLine, addDouble, pos, len, hyp);
         }
         else if (val == 4) {
             writeFile(outf, word, val, startLine, addDouble, pos, len, hyp);
@@ -174,23 +187,61 @@ int getWord(int lineLength, int& pos, istream& inf, char word[], bool& doubleEnd
     word[i] = '\0';
     return 1; // reached end of file
 }
+//
+//int main () {
+//    ofstream outfile("/Users/leisongao/Desktop/cs31/project_5/textFiles/results.text");
+////    ofstream outfile("results.text");     // g31 code
+//    if ( ! outfile )// Did the creation fail?
+//    {
+//    cerr << "Error: Cannot create results.txt!" << endl;
+//    }
+//
+//    // input code
+//    ifstream infile("/Users/leisongao/Desktop/cs31/project_5/textFiles/ref.text");
+////    ifstream infile("ref.text");    // g31 code
+//    if ( ! infile )                // Did opening the file fail?
+//    {
+//    cerr << "Error: Cannot open data.txt!" << endl;
+//    }
+//    
+////    outfile << "Testing it\n";
+//    
+//    int len = 6;
+//    render(len, infile, outfile);
+//}
 
-int main () {
-    ofstream outfile("/Users/leisongao/Desktop/cs31/project_5/textFiles/results.text");
-//    ofstream outfile("results.text");     // g31 code
-    if ( ! outfile )// Did the creation fail?
+void testRender(int lineLength, const char input[], const char expectedOutput[], int expectedReturnValue)
+{
+    istringstream iss(input);
+    ostringstream oss;
+    ostringstream dummy;
+    streambuf* origCout = cout.rdbuf(dummy.rdbuf());
+    int retval = render(lineLength, iss, oss);
+    cout.rdbuf(origCout);
+    if ( ! dummy.str().empty())
+        cerr << "WROTE TO COUT INSTEAD OF THIRD PARAMETER FOR: " << input << endl;
+    else if (retval != expectedReturnValue)
+        cerr << "WRONG RETURN VALUE FOR: " << input << endl;
+    else if (retval == 2)
     {
-    cerr << "Error: Cannot create results.txt!" << endl;
+        if ( ! oss.str().empty())
+            cerr << "WROTE OUTPUT WHEN LINELENGTH IS " << lineLength << endl;
     }
+    else if (oss.str() != expectedOutput) {
+        cerr << "WRONG RESULT FOR: " << input << endl;
+        for (int i = 0; i < oss.str().size(); i++) {
+            if (oss.str()[i] != expectedOutput[i]) {
+                cerr << "ERROR AT POSITION: " << i << "EXPECTED: " << expectedOutput[i] << " INSTEAD OF " << oss.str()[i] << endl;
+            }
+        }
+    }
+}
 
-    // input code
-    ifstream infile("/Users/leisongao/Desktop/cs31/project_5/textFiles/ref.text");
-//    ifstream infile("ref.text");    // g31 code
-    if ( ! infile )                // Did opening the file fail?
-    {
-    cerr << "Error: Cannot open data.txt!" << endl;
-    }
-    
-    int len = 40;
-    render(len, infile, outfile);
+int main()
+{
+    testRender(7, "This\n\t\tis a\ntest\n", "This is\na test\n", 0);
+    testRender(8, "  This is a test  \n", "This is\na test\n", 0);
+    testRender(6, "Testing it\n", "Testin\ng it\n", 1);
+    testRender(-5, "irrelevant", "irrelevant", 2);
+    cerr << "Tests complete" << endl;
 }
